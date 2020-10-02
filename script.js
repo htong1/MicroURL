@@ -1,8 +1,8 @@
 function shorten(){
 debugger;
 let url = document.getElementById("url").value;
-let result = document.getElementById("microURL");
-map(url);
+let token = map(url);
+makeMURL();
 }
 
 function createToken(){
@@ -24,6 +24,13 @@ if(urlMap.has(token)){
   }
 } else {
   urlMap.set(token, url);
+  return token;
 }
 }
 
+function makeMURL(){
+  let token = map(url);
+  let mURL = window.location.protocol + "//" + "MicroURL.com/" + token;
+  let result = document.getElementById("microURL");
+  result.innerHTML = mURL;
+}
