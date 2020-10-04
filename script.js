@@ -1,9 +1,8 @@
 function shorten(){
-debugger;
 let url = document.getElementById("url").value;
 let result = document.getElementById("microURL");
 let token = map(url);
-result.innerHTML = makeMURL();
+result.innerHTML = makeMURL(token);
 }
 
 function createToken(){
@@ -15,22 +14,27 @@ for(let i = 0; i < 6; i++){
 return token;
 }
 
-const urlMap = new Map();
-
 function map(url){
 let token = createToken();
-if(urlMap.has(token)){
-  if(url != urlMap.get(token)){
+if(localStorage.getItem(token)){
+  if(url != localStorage.getItem(token)){
      map();
   }
 } else {
-  urlMap.set(token, url);
+  localStorage.setItem(token, url);
   return token;
 }
 }
 
-function makeMURL(){
-  let token = map(url);
-  let mURL = window.location.protocol + "//" + "MicroURL.com/" + token;
+function makeMURL(token){
+  let mURL = window.location.protocol + "//" + window.location.host + window.location.pathname + "?" + token;
   return mURL;
+}
+
+function extractToken(){
+  debugger;
+  let extractedToken = window.location.search;
+  extractedToken = extractedToken.slice(1);
+  let open = localStorage.getItem(extractedToken);
+  window.open(open);
 }
