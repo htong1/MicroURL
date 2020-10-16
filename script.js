@@ -1,7 +1,8 @@
 function shorten() {
+  debugger;
     let url = document.getElementById("url").value;
     let result = document.getElementById("microURL");
-    let token = map(url);
+    let token = linkToToken(url);
     result.innerHTML = makeMURL(token);
 }
 
@@ -14,17 +15,17 @@ function createToken() {
     return token;
 }
 
-function map(url) {
+function linkToToken(url) {
     let token = createToken();
-    if (localStorage.getItem(url)) {
-        return localStorage.getItem(url);
-    } else if (localStorage.getItem(token)) {
-        if (url != localStorage.getItem(token)) {
-            map();
+    if (remoteGlobalStorage.getItem(url)) {
+        return remoteGlobalStorage.getItem(url);
+    } else if (remoteGlobalStorage.getItem(token)) {
+        if (url != remoteGlobalStorage.getItem(token)) {
+            linkToToken();
         }
     } else {
-        localStorage.setItem(token, url);
-        localStorage.setItem(url, token);
+        remoteGlobalStorage.setItem(url, token);
+        remoteGlobalStorage.setItem(token, url);
         return token;
     }
 }
@@ -35,9 +36,56 @@ function makeMURL(token) {
 }
 
 function extractToken() {
-    debugger;
     let extractedToken = window.location.search;
-    extractedToken = extractedToken.slice(1);
-    let open = localStorage.getItem(extractedToken);
+    if(extractedToken[0] == "?"){
+      extractedToken = extractedToken.slice(1);
+    let open = remoteGlobalStorage.getItem(extractedToken);
     window.open(open, "_parent");
+    }
+}
+
+
+const remoteGlobalStorage = {
+DBURL :"https://kv.repl.it/v0/eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDI5MjcxMzEsImlhdCI6MTYwMjgxNTUzMSwiaXNzIjoiY29ubWFuIiwiZGF0YWJhc2VfaWQiOiI4MTgxYTJkMS01ZTU5LTRmYTgtYTI4NC1hYjZkOTViZDEyODEifQ.UvuWCxdqAFegNvjXdiC8jm6kAfdxRb-Ln8j_pSP9BX1qfg1mGVOMTe22GrB0i42tlEuppdYeyJv34ErcxtTcYQ",
+
+getItem(key){
+let newURL = this.DBURL + "/" + "key";
+let options = {
+    method: 'GET',
+    mode: 'no-cors',
+    headers:{
+       "Content-Type": "application/x-www-form-urlencoded",
+       "Accept": "*/*"
+    }
+};
+fetch(newURL, options)
+.then(response => response.json())
+
+.then(res => {
+makeMURL(token);
+})
+},
+
+setItem(key, value){
+let options = {
+    method: 'POST',
+    body : key + "=" + value,
+    mode: 'no-cors',
+    headers:{
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "*/*"
+    }
+};
+
+fetch(this.DBURL, options)
+    //.then(res => res.json())
+    .then(res => console.log(res))
+    .catch((error) => {
+  console.error('Error:', error);
+});
+},
+
+removeItem(key){
+
+}
 }
